@@ -2,6 +2,7 @@
 
 dart-boiler.nvim makes Dart class boilerplate a breeze with instant, in-line code generation.
 
+<BR>
 ## Why does this exist?
 
 During a rather grueling codebase migration to Dart sound-null-safety, 
@@ -13,6 +14,7 @@ Note: I was unfortunately unable to use code generation solutions like [freezed]
 [json_serializable]: https://pub.dev/packages/json_serializable
 [freezed]: https://pub.dev/packages/freezed
 
+<BR>
 ## Installation
 
 Install like any other vim plugin.
@@ -38,6 +40,7 @@ use 'rafaelcolladojr/dart-boiler.nvim'
 Plug 'rafaelcolladojr/dart-boiler.nvim'
 ```
 
+<BR>
 ## Usage
 
 To generate a field-related boilerplate for a class, first create a class with its fields expressed in the following format:
@@ -52,6 +55,7 @@ class MyClass extends Equatable {
 }
 ```
 
+<BR>
 Notice the bang(!) after the first two field datatypes. The symbol following a datatype indicates the nature and scope of that field.
 
 | Symbol | Scope |
@@ -60,7 +64,7 @@ Notice the bang(!) after the first two field datatypes. The symbol following a d
 | ? | Nullable field |
 | none | Non-nullable (required) |
 
-
+<BR>
 Select the fields you've created with a visual block selection, and execute the following command:
 ```vimscript
 :lua require('dart-boiler').boil()
