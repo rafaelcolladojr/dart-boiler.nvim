@@ -66,24 +66,24 @@ end
 
 -- PUBLIC BOILERPLATE GENERATION COMMAND
 M.boil = function ()
-  -- local language = vim.bo.filetype;
-  -- if (language ~= 'dart') then
-  --   return
+  -- local bufnr = vim.api.nvim_get_current_buf()
+  -- if vim.bo[bufnr].filetype ~= "dart" then
+  --   vim.notify("Only Dart is supported")
   -- end
 
   -- Visual selection range
   local vstart = vim.fn.getpos("'<")[2] - 1
   local vend = vim.fn.getpos("'>")[2]
 
-  local bufnr = vim.api.nvim_get_current_buf()
-
+  -- Extract lines from selection
   local buf_lines = vim.api.nvim_buf_get_lines(bufnr, vstart, vend, false)
   local fields = M._boil_process_lines(buf_lines)
-  -- P(fields)
+
+  -- Generate replacement code
   local replacement = {}
   M._boil_boilerplate(fields, replacement)
 
-  -- P(replacement)
+  -- Overwrite selected text with replacement
   vim.api.nvim_buf_set_lines(bufnr, vstart, vend, false, replacement)
 end
 
