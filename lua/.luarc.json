@@ -1,0 +1,8 @@
+{
+    "workspace.library": [
+        "/Users/raff/.local/share/nvim/site/pack/packer/start/neodev.nvim/types/stable",
+        "/opt/homebrew/Cellar/neovim/0.9.0/share/nvim/runtime/lua",
+        "/Users/raff/Documents/Projects/lua/nvim-plugins/dart-boiler.nvim/lua",
+        "${3rd}/luv/library"
+    ]
+}
