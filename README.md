@@ -59,7 +59,8 @@ class MyClass extends Equatable {
 
 <BR>
 
-Notice the bang(!) after the first two field datatypes. The symbol following a datatype indicates the nature and scope of that field.
+Notice the bang(!) after the first two field datatypes.
+The symbol following a datatype indicates the nature and scope of that field:
 
 | Symbol | Scope |
 | --- | --- |
@@ -70,6 +71,7 @@ Notice the bang(!) after the first two field datatypes. The symbol following a d
 
 <BR>
 Select the fields you've created with a visual block selection, and execute the following command:
+
 ```vimscript
 :lua require('dart-boiler').boil()
 ```
