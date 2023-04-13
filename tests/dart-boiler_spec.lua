@@ -22,7 +22,7 @@ _boil_sample_input = {
   "String? name,",
   "  String? yes,",
   "String no",
-  "DateTime! wild;",
+  "\tDateTime! wild;",
   "bool try_this;",
 }
 

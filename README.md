@@ -21,25 +21,32 @@ Note: I was unfortunately unable to use code generation solutions like [freezed]
 Install like any other vim plugin.
 Here are examples using some popular package managers:
 
-### packer.nvim
+<details>
+<summary>packer.nvim</summary>
 
 ```lua
 use 'rafaelcolladojr/dart-boiler.nvim'
 ```
+</details>
 
-### lazy.nvim
+<details>
+<summary>lazy.nvim</summary>
 
 ```lua
 {
     'rafaelcolladojr/dart-boiler.nvim'
 }
 ```
+</details>
 
+<details>
+<summary>vim-plug</summary>
 ### vim-plug 
 
 ```lua
 Plug 'rafaelcolladojr/dart-boiler.nvim'
 ```
+</details>
 
 <BR>
 
