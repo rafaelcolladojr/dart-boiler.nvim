@@ -1,25 +1,6 @@
 local M = {}
 
-M.boil = function ()
-  -- local language = vim.bo.filetype;
-  -- if (language ~= 'dart') then
-  --   return
-  -- end
-
-  -- Visual selection range
-  local vstart = vim.fn.getpos("'<")[2] - 1
-  local vend = vim.fn.getpos("'>")[2]
-
-  local bufnr = vim.api.nvim_get_current_buf()
-
-  local buf_lines = vim.api.nvim_buf_get_lines(bufnr, vstart, vend, false)
-  local fields = M._boil_process_lines(buf_lines)
-  -- P(fields)
-  local replacement = M._boil_boilerplate(fields)
-  P(replacement)
-  vim.api.nvim_buf_set_lines(bufnr, vstart, vend, false, replacement)
-end
-
+-- PROCESS HIGHLIGHTED LINES
 M._boil_process_lines = function (buf_lines)
   local regex_required = "^%s*(%w+)(%p?).*%s+([a-zA-Z_-]+)[,;:]*%s*$"
   local fields = {inherited={}, required={}, optional={}}
@@ -37,40 +18,73 @@ M._boil_process_lines = function (buf_lines)
   return fields
 end
 
-M._boil_constructor = function (fields)
-  local constructor = {
-    "const __CLASS__({",
-  }
+-- BOILERPLATE CONSTRUCTOR
+M._boil_constructor = function (fields, replacement)
+    table.insert(replacement, "const __CLASS__({")
   for _, field in ipairs(fields.inherited) do
     local comp = "\t" .. field.type .. "? " .. field.name .. ","
-    table.insert(constructor, comp)
+    table.insert(replacement, comp)
   end
   for _, field in ipairs(fields.required) do
     local comp = "\trequired this." .. field.name .. ","
-    table.insert(constructor, comp)
+    table.insert(replacement, comp)
   end
   for _, field in ipairs(fields.optional) do
     local comp = "\tthis." .. field.name .. ","
-    table.insert(constructor, comp)
+    table.insert(replacement, comp)
   end
   if #fields.inherited then
-    table.insert(constructor, "}): super(")
+    table.insert(replacement, "}): super(")
     for _, field in ipairs(fields.inherited) do
       local comp = "\t" .. field.name .. ": " .. field.name .. ","
-      table.insert(constructor, comp)
+      table.insert(replacement, comp)
     end
-    table.insert(constructor, ");")
+    table.insert(replacement, ");")
   else
-    table.insert(constructor, "});")
+    table.insert(replacement, "});")
   end
-  return constructor
 end
 
-M._boil_boilerplate = function(fields)
+-- ALL FIELDS (AFTER CONSTRUCTOR)
+M._boil_fields = function (fields, replacement)
+  table.insert(replacement, "")
+  for _, field in ipairs(fields.required) do
+    local comp = "\tfinal ".. field.type .. " " .. field.name .. ";"
+    table.insert(replacement, comp)
+  end
+  for _, field in ipairs(fields.optional) do
+    local comp = "\tfinal ".. field.type .. "? " .. field.name .. ";"
+    table.insert(replacement, comp)
+  end
+end
+
+-- ALL BOILERPLATE CODE
+M._boil_boilerplate = function(fields, replacement)
+  M._boil_constructor(fields, replacement)
+  M._boil_fields(fields, replacement)
+end
+
+-- PUBLIC BOILERPLATE GENERATION COMMAND
+M.boil = function ()
+  -- local language = vim.bo.filetype;
+  -- if (language ~= 'dart') then
+  --   return
+  -- end
+
+  -- Visual selection range
+  local vstart = vim.fn.getpos("'<")[2] - 1
+  local vend = vim.fn.getpos("'>")[2]
+
+  local bufnr = vim.api.nvim_get_current_buf()
+
+  local buf_lines = vim.api.nvim_buf_get_lines(bufnr, vstart, vend, false)
+  local fields = M._boil_process_lines(buf_lines)
+  -- P(fields)
   local replacement = {}
-  local constructor = M._boil_constructor(fields)
-  table.insert(replacement, constructor)
-  return constructor
+  M._boil_boilerplate(fields, replacement)
+
+  -- P(replacement)
+  vim.api.nvim_buf_set_lines(bufnr, vstart, vend, false, replacement)
 end
 
 return M

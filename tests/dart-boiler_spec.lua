@@ -42,13 +42,13 @@ _boil_sample_processed = {
 
 _boil_sample_constructor = {
   "const __CLASS__({",
-  "DateTime? wild,",
-  "required this.no,",
-  "required this.try_this,",
-  "this.name,",
-  "this.yes,",
+  "\tDateTime? wild,",
+  "\trequired this.no,",
+  "\trequired this.try_this,",
+  "\tthis.name,",
+  "\tthis.yes,",
   "}): super(",
-  "wild: wild,",
+  "\twild: wild,",
   ");",
 }
 
@@ -64,7 +64,8 @@ describe("dart-boiler", function ()
   end)
 
   it("_boil_constructor Returns properly formatted constructor using parsed fields", function ()
-    local constructor = require("dart-boiler")._boil_constructor(_boil_sample_processed)
+    local constructor = {} 
+    require("dart-boiler")._boil_constructor(_boil_sample_processed, constructor)
     local result = _boil_deepcompare(constructor, _boil_sample_constructor, true)
     assert.is.True(result)
   end)
