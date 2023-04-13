@@ -15,6 +15,7 @@ Note: I was unfortunately unable to use code generation solutions like [freezed]
 [freezed]: https://pub.dev/packages/freezed
 
 <BR>
+
 ## Installation
 
 Install like any other vim plugin.
@@ -41,6 +42,7 @@ Plug 'rafaelcolladojr/dart-boiler.nvim'
 ```
 
 <BR>
+
 ## Usage
 
 To generate a field-related boilerplate for a class, first create a class with its fields expressed in the following format:
@@ -56,6 +58,7 @@ class MyClass extends Equatable {
 ```
 
 <BR>
+
 Notice the bang(!) after the first two field datatypes. The symbol following a datatype indicates the nature and scope of that field.
 
 | Symbol | Scope |
@@ -63,6 +66,7 @@ Notice the bang(!) after the first two field datatypes. The symbol following a d
 | ! | Inhereted field |
 | ? | Nullable field |
 | none | Non-nullable (required) |
+
 
 <BR>
 Select the fields you've created with a visual block selection, and execute the following command:
