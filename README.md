@@ -13,7 +13,12 @@ dart-boiler.nvim makes Dart class boilerplate a breeze with instant, in-line cod
 ## Why does this exist?
 
 During a rather grueling codebase migration to Dart sound-null-safety, 
+
 I found myself manually generating general class boilerplate and boilerplate for packages like [equatable][] and [json_serializable][].
+
+So this plugin was a final act of desparation before I spiraled into madness and Carpal Tunnel Syndrome.
+    
+<BR>
 
 Note: I was unfortunately unable to use code generation solutions like [freezed][] due to certain limitations.
 
