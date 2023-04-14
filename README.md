@@ -102,4 +102,4 @@ Here are some features that might help with that:
 - [ ] Support default values
 - [ ] Support toString()
 - [ ] Support json serialization
-- [ ] Use Telescope utils for smarter class/field parsing
+- [ ] Use Treesitter utils for smarter class/field parsing
