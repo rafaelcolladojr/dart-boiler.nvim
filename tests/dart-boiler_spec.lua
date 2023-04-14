@@ -52,6 +52,34 @@ _boil_sample_constructor = {
   ");",
 }
 
+_boil_sample_copywith = {
+  "__CLASS__ copyWith({",
+  "\tDateTime? wild,",
+  "\tString? no,",
+  "\tbool? try_this,",
+  "\tString? name,",
+  "\tString? yes,",
+  "}) =>",
+  "\t__CLASS__(",
+  "\twild: wild ?? this.wild,",
+  "\tno: no ?? this.no,",
+  "\ttry_this: try_this ?? this.try_this,",
+  "\tname: name ?? this.name,",
+  "\tyes: yes ?? this.yes,",
+  ");",
+}
+
+_boil_sample_props = {
+  "@override",
+  "List<Object?> get props => [",
+  "\twild,",
+  "\tno,",
+  "\ttry_this,",
+  "\tname,",
+  "\tyes,",
+  "];",
+}
+
 describe("dart-boiler", function ()
   it("Can be required", function ()
     require("dart-boiler")
@@ -64,9 +92,23 @@ describe("dart-boiler", function ()
   end)
 
   it("_boil_constructor Returns properly formatted constructor using parsed fields", function ()
-    local constructor = {} 
+    local constructor = {}
     require("dart-boiler")._boil_constructor(_boil_sample_processed, constructor)
     local result = _boil_deepcompare(constructor, _boil_sample_constructor, true)
+    assert.is.True(result)
+  end)
+
+  it("_boil_copywith Returns properly formatted copyWith function using parsed fields", function ()
+    local copywith = {}
+    require("dart-boiler")._boil_copywith(_boil_sample_processed, copywith)
+    local result = _boil_deepcompare(copywith, _boil_sample_copywith, true)
+    assert.is.True(result)
+  end)
+
+  it("_boil_props Returns properly formatted pros getter using parsed fields", function ()
+    local props = {}
+    require("dart-boiler")._boil_props(_boil_sample_processed, props)
+    local result = _boil_deepcompare(props, _boil_sample_props, true)
     assert.is.True(result)
   end)
 end)
