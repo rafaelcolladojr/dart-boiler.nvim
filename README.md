@@ -4,7 +4,7 @@ dart-boiler.nvim makes Dart class boilerplate a breeze with instant, in-line cod
 
 <div align="center">
     
-<img height="700" src="https://user-images.githubusercontent.com/7101404/231917203-45afcf2b-4845-4798-a6f0-c38f9edf99ae.gif">
+<img width="600" src="https://user-images.githubusercontent.com/7101404/231954108-f0a763d9-b51a-45b0-979b-d44ec29e9cbd.gif">
     
 </div>
     
@@ -91,12 +91,12 @@ Select the fields you've created with a visual block selection, and execute the 
 :lua require('dart-boiler').boil()
 ```
 
-## Goals
+## Todo
 
 While intended as a quick-fix for a rather specific scenario, this plugin can grow into something more generally applicable.
 
 Here are some features that might help with that:
 
-- [ ] Use Telescope utils for smarter class/field parsing
-- [ ] Support generic field types (eg. List<T>)
+- [x] Support generic field types (eg. List<T>)
 - [ ] Support default values
+- [ ] Use Telescope utils for smarter class/field parsing
