@@ -84,8 +84,19 @@ The symbol following a datatype indicates the nature and scope of that field:
 
 
 <BR>
+
 Select the fields you've created with a visual block selection, and execute the following command:
 
 ```vimscript
 :lua require('dart-boiler').boil()
 ```
+
+## Goals
+
+While intended as a quick-fix for a rather specific scenario, this plugin can grow into something more generally applicable.
+
+Here are some features that might help with that:
+
+- [ ] Use Telescope utils for smarter class/field parsing
+- [ ] Support generic field types (eg. List<T>)
+- [ ] Support default values
