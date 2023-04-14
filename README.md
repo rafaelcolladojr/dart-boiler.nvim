@@ -2,7 +2,7 @@
 
 dart-boiler.nvim makes Dart class boilerplate a breeze with instant, in-line code generation.
 
-<img src="https://github.com/favicon.ico](https://user-images.githubusercontent.com/7101404/231916586-f305e652-e5ea-41e0-96bd-97ac293c7ced.gif" width="100">
+<img height="500" src="https://user-images.githubusercontent.com/7101404/231917203-45afcf2b-4845-4798-a6f0-c38f9edf99ae.gif">
 
 <BR>
 ## Why does this exist?
