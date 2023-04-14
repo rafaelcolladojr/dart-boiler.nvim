@@ -19,14 +19,17 @@ _boil_deepcompare = function(t1,t2,ignore_mt)
 end
 
 _boil_sample_input = {
+  "class ClassName {",
   "String? name,",
   "  String? yes,",
   "String no",
   "\tDateTime! wild;",
   "bool try_this;",
+  "}",
 }
 
 _boil_sample_processed = {
+  class = "ClassName",
   inherited = {
     {type = "DateTime", name = "wild"},
   },
@@ -41,7 +44,7 @@ _boil_sample_processed = {
 }
 
 _boil_sample_constructor = {
-  "const __CLASS__({",
+  "const ClassName({",
   "\tDateTime? wild,",
   "\trequired this.no,",
   "\trequired this.try_this,",
@@ -53,14 +56,14 @@ _boil_sample_constructor = {
 }
 
 _boil_sample_copywith = {
-  "__CLASS__ copyWith({",
+  "ClassName copyWith({",
   "\tDateTime? wild,",
   "\tString? no,",
   "\tbool? try_this,",
   "\tString? name,",
   "\tString? yes,",
   "}) =>",
-  "\t__CLASS__(",
+  "\tClassName(",
   "\twild: wild ?? this.wild,",
   "\tno: no ?? this.no,",
   "\ttry_this: try_this ?? this.try_this,",

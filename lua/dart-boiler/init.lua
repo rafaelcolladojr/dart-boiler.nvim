@@ -2,10 +2,18 @@ local M = {}
 
 -- PROCESS HIGHLIGHTED LINES
 M._boil_process_lines = function (buf_lines)
-  local regex_required = "^%s*(%w+)(%p?).*%s+([a-zA-Z_-]+)[,;:]*%s*$"
-  local fields = {inherited={}, required={}, optional={}}
-  for _, value in ipairs(buf_lines) do
-    local _, _, type, scope, name = string.find(value, regex_required)
+  local regex_class = "^%s*class%s*(%w*).*$"
+  local regex_fields = "^%s*(%w+)(%p?).*%s+([a-zA-Z_-]+)[,;:]*%s*$"
+
+  local fields = {class=nil, inherited={}, required={}, optional={}}
+  for index, value in ipairs(buf_lines) do
+    if index == 1 then
+      local _, _ , class = string.find(value, regex_class)
+      fields.class = class
+      goto continue
+    end
+
+    local _, _, type, scope, name = string.find(value, regex_fields)
     local field = {type = type, name = name}
     if scope == "!" then
       table.insert(fields.inherited, field)
@@ -14,13 +22,14 @@ M._boil_process_lines = function (buf_lines)
     elseif scope == "?" then
       table.insert(fields.optional, field)
     end
+      ::continue::
   end
   return fields
 end
 
 -- BOILERPLATE CONSTRUCTOR
 M._boil_constructor = function (fields, replacement)
-    table.insert(replacement, "const __CLASS__({")
+    table.insert(replacement, "const " .. fields.class .. "({")
   for _, field in ipairs(fields.inherited) do
     local comp = "\t" .. field.type .. "? " .. field.name .. ","
     table.insert(replacement, comp)
@@ -59,7 +68,7 @@ end
 
 -- COPYWITH FUNCTION
 M._boil_copywith = function (fields, replacement)
-  table.insert(replacement, "__CLASS__ copyWith({")
+  table.insert(replacement, fields.class .. " copyWith({")
   for _, field in ipairs(fields.inherited) do
     local comp = "\t" .. field.type .. "? " .. field.name .. ","
     table.insert(replacement, comp)
@@ -73,7 +82,7 @@ M._boil_copywith = function (fields, replacement)
     table.insert(replacement, comp)
   end
   table.insert(replacement, "}) =>")
-  table.insert(replacement, "\t__CLASS__(")
+  table.insert(replacement, "\t" .. fields.class .. "(")
   for _, field in ipairs(fields.inherited) do
     local comp = "\t" .. field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
     table.insert(replacement, comp)
@@ -110,16 +119,27 @@ end
 -- ALL BOILERPLATE CODE
 M._boil_boilerplate = function(fields, replacement)
   M._boil_constructor(fields, replacement)
+
   table.insert(replacement, "")
   M._boil_fields(fields, replacement)
-  table.insert(replacement, "")
-  M._boil_copywith(fields, replacement)
-  table.insert(replacement, "")
-  M._boil_props(fields, replacement)
+
+
+  if M._boil_setting_copywith then
+    table.insert(replacement, "")
+    M._boil_copywith(fields, replacement)
+  end
+
+  if M._boil_setting_props then
+    table.insert(replacement, "")
+    M._boil_props(fields, replacement)
+  end
 end
 
 -- PUBLIC BOILERPLATE GENERATION COMMAND
-M.boil = function ()
+M.boil = function (copyWith, props)
+  M._boil_setting_copywith = copyWith or true
+  M._boil_setting_props = props or false
+
   -- Check for Dart filetype
   local bufnr = vim.api.nvim_get_current_buf()
   if vim.bo[bufnr].filetype ~= "dart" then
@@ -140,56 +160,7 @@ M.boil = function ()
   M._boil_boilerplate(fields, replacement)
 
   -- Overwrite selected text with replacement
-  vim.api.nvim_buf_set_lines(bufnr, vstart, vend, false, replacement)
+  vim.api.nvim_buf_set_lines(bufnr, vstart + 1, vend, false, replacement)
 end
 
 return M
-
---[[
-Test Cases
-
-const __CLASS__({
-	String? firstName,
-	String? email,
-	required this.lastName,
-	this.id,
-	this.createUserId,
-	this.createTime,
-}): super(
-	firstName: firstName,
-	email: email,
-);
-
-	final String lastName;
-	final String? id;
-	final String? createUserId;
-	final DateTime? createTime;
-
-__CLASS__ copyWith({
-	String? firstName,
-	String? email,
-	String? lastName,
-	String? id,
-	String? createUserId,
-	DateTime? createTime,
-}) =>
-	__CLASS__(
-	firstName: firstName ?? this.firstName,
-	email: email ?? this.email,
-	lastName: lastName ?? this.lastName,
-	id: id ?? this.id,
-	createUserId: createUserId ?? this.createUserId,
-	createTime: createTime ?? this.createTime,
-);
-
-@override
-List<Object?> get props => [
-	firstName,
-	email,
-	lastName,
-	id,
-	createUserId,
-	createTime,
-];
-
---]]
