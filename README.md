@@ -69,7 +69,7 @@ class MyClass extends Equatable {
 Notice the bang(!) after the first two field datatypes.
 The symbol following a datatype indicates the nature and scope of that field:
 
-| Symbol | Scope |
+| Symbol | Nature |
 | --- | --- |
 | ! | Inhereted field |
 | ? | Nullable field |
