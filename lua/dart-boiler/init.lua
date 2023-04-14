@@ -47,7 +47,6 @@ end
 
 -- ALL FIELDS (AFTER CONSTRUCTOR)
 M._boil_fields = function (fields, replacement)
-  table.insert(replacement, "")
   for _, field in ipairs(fields.required) do
     local comp = "\tfinal ".. field.type .. " " .. field.name .. ";"
     table.insert(replacement, comp)
@@ -58,18 +57,75 @@ M._boil_fields = function (fields, replacement)
   end
 end
 
+-- COPYWITH FUNCTION
+M._boil_copywith = function (fields, replacement)
+  table.insert(replacement, "__CLASS__ copyWith({")
+  for _, field in ipairs(fields.inherited) do
+    local comp = "\t" .. field.type .. "? " .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  for _, field in ipairs(fields.required) do
+    local comp = "\t" .. field.type .. "? " .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  for _, field in ipairs(fields.optional) do
+    local comp = "\t" .. field.type .. "? " .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  table.insert(replacement, "}) =>")
+  table.insert(replacement, "\t__CLASS__(")
+  for _, field in ipairs(fields.inherited) do
+    local comp = "\t" .. field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  for _, field in ipairs(fields.required) do
+    local comp = "\t" .. field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  for _, field in ipairs(fields.optional) do
+    local comp = "\t" .. field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  table.insert(replacement, ");")
+end
+
+M._boil_props = function (fields, replacement)
+  table.insert(replacement, "@override")
+  table.insert(replacement, "List<Object?> get props => [")
+  for _, field in ipairs(fields.inherited) do
+    local comp = "\t" .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  for _, field in ipairs(fields.required) do
+    local comp = "\t" .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  for _, field in ipairs(fields.optional) do
+    local comp = "\t" .. field.name .. ","
+    table.insert(replacement, comp)
+  end
+  table.insert(replacement, "];")
+end
+
 -- ALL BOILERPLATE CODE
 M._boil_boilerplate = function(fields, replacement)
   M._boil_constructor(fields, replacement)
+  table.insert(replacement, "")
   M._boil_fields(fields, replacement)
+  table.insert(replacement, "")
+  M._boil_copywith(fields, replacement)
+  table.insert(replacement, "")
+  M._boil_props(fields, replacement)
 end
 
 -- PUBLIC BOILERPLATE GENERATION COMMAND
 M.boil = function ()
-  -- local bufnr = vim.api.nvim_get_current_buf()
-  -- if vim.bo[bufnr].filetype ~= "dart" then
-  --   vim.notify("Only Dart is supported")
-  -- end
+  -- Check for Dart filetype
+  local bufnr = vim.api.nvim_get_current_buf()
+  if vim.bo[bufnr].filetype ~= "dart" then
+    vim.notify("This action is only supported in Dart")
+    return
+  end
 
   -- Visual selection range
   local vstart = vim.fn.getpos("'<")[2] - 1
@@ -92,11 +148,48 @@ return M
 --[[
 Test Cases
 
-String! id,
-String! createUserId,
-DateTime! createTime,
-String firstName,
-String lastName,
-String? email,
+const __CLASS__({
+	String? firstName,
+	String? email,
+	required this.lastName,
+	this.id,
+	this.createUserId,
+	this.createTime,
+}): super(
+	firstName: firstName,
+	email: email,
+);
+
+	final String lastName;
+	final String? id;
+	final String? createUserId;
+	final DateTime? createTime;
+
+__CLASS__ copyWith({
+	String? firstName,
+	String? email,
+	String? lastName,
+	String? id,
+	String? createUserId,
+	DateTime? createTime,
+}) =>
+	__CLASS__(
+	firstName: firstName ?? this.firstName,
+	email: email ?? this.email,
+	lastName: lastName ?? this.lastName,
+	id: id ?? this.id,
+	createUserId: createUserId ?? this.createUserId,
+	createTime: createTime ?? this.createTime,
+);
+
+@override
+List<Object?> get props => [
+	firstName,
+	email,
+	lastName,
+	id,
+	createUserId,
+	createTime,
+];
 
 --]]
