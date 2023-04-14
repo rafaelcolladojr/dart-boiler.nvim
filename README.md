@@ -2,6 +2,10 @@
 
 dart-boiler.nvim makes Dart class boilerplate a breeze with instant, in-line code generation.
 
+
+![dart-boiler](https://user-images.githubusercontent.com/7101404/231916586-f305e652-e5ea-41e0-96bd-97ac293c7ced.gif)
+
+
 <BR>
 ## Why does this exist?
 
