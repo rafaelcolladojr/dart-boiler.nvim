@@ -100,4 +100,6 @@ Here are some features that might help with that:
 
 - [x] Support generic field types (eg. List<T>)
 - [ ] Support default values
+- [ ] Support toString()
+- [ ] Support json serialization
 - [ ] Use Telescope utils for smarter class/field parsing
