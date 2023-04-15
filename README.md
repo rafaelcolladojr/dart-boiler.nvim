@@ -90,7 +90,7 @@ The symbol following a datatype indicates the nature and scope of that field:
 Select the fields you've created with a visual block selection, and execute the following command:
 
 ```lua
-:lua require('dart-boiler').boil(true, true) -- args: (copyWith, props)
+:lua require('dart-boiler').boil(true, true) -- args: (copyWith, props, toString)
 ```
 
 ## Todo
@@ -101,6 +101,6 @@ Here are some features that might help with that:
 
 - [x] Support generic field types (eg. List<T>)
 - [x] Support default values
-- [ ] Support toString()
+- [x] Support toString()
 - [ ] Support json serialization
 - [ ] Use Treesitter utils for smarter class/field parsing
