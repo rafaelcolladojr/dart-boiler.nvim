@@ -122,6 +122,7 @@ M._boil_copywith = function (fields, replacement)
   table.insert(replacement, ");")
 end
 
+-- PROPS GETTER (Equatable)
 M._boil_props = function (fields, replacement)
   table.insert(replacement, "@override")
   table.insert(replacement, "List<Object?> get props => [")
@@ -144,6 +145,25 @@ M._boil_props = function (fields, replacement)
   table.insert(replacement, "];")
 end
 
+-- TOSTRING
+M._boil_tostring = function (fields, replacement)
+  local comp = "String toString() => \"" .. fields.class .. "("
+  for _, field in ipairs(fields.inherited) do
+    comp = comp .. field.name .. ": $" .. field.name .. ", "
+  end
+  for _, field in ipairs(fields.rinherited) do
+    comp = comp .. field.name .. ": $" .. field.name .. ", "
+  end
+  for _, field in ipairs(fields.required) do
+    comp = comp .. field.name .. ": $" .. field.name .. ", "
+  end
+  for _, field in ipairs(fields.optional) do
+    comp = comp .. field.name .. ": $" .. field.name .. ", "
+  end
+    comp = comp .. ")\";"
+  table.insert(replacement, comp)
+end
+
 -- ALL BOILERPLATE CODE
 M._boil_boilerplate = function(fields, replacement)
   M._boil_constructor(fields, replacement)
@@ -162,13 +182,19 @@ M._boil_boilerplate = function(fields, replacement)
     M._boil_props(fields, replacement)
   end
 
+  if M._boil_setting_tostring then
+    table.insert(replacement, "")
+    M._boil_tostring(fields, replacement)
+  end
+
     table.insert(replacement, "}")
 end
 
 -- PUBLIC BOILERPLATE GENERATION COMMAND
-M.boil = function (copyWith, props)
+M.boil = function (copyWith, props, toString)
   M._boil_setting_copywith = copyWith or true
   M._boil_setting_props = props or false
+  M._boil_setting_tostring = props or true
 
   -- Check for Dart filetype
   local bufnr = vim.api.nvim_get_current_buf()
