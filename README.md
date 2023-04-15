@@ -64,11 +64,11 @@ To generate a field-related boilerplate for a class, first create a class with i
 
 ```dart
 class MyClass extends Equatable {
-    String! id;
+    String!! id;
     String! name;
     DateTime dob;
     String? email;
-    bool enabled;
+    bool enabled = false;
 }
 ```
 
@@ -79,7 +79,8 @@ The symbol following a datatype indicates the nature and scope of that field:
 
 | Symbol | Nature |
 | --- | --- |
-| ! | Inhereted field |
+| ! | Nullable Inhereted field |
+| !! | Non-nullable Inhereted field |
 | ? | Nullable field |
 | none | Non-nullable (required) |
 
@@ -99,7 +100,7 @@ While intended as a quick-fix for a rather specific scenario, this plugin can gr
 Here are some features that might help with that:
 
 - [x] Support generic field types (eg. List<T>)
-- [ ] Support default values
+- [x] Support default values
 - [ ] Support toString()
 - [ ] Support json serialization
 - [ ] Use Treesitter utils for smarter class/field parsing
