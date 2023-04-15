@@ -98,6 +98,8 @@ _boil_sample_props = {
   "];",
 }
 
+_boil_sample_tostring = "String toString() => \"ClassName(wild: $wild, escape: $escape, no: $no, try_this: $try_this, maybe: $maybe, name: $name, yes: $yes )\";"
+
 describe("dart-boiler", function ()
   it("_boil_process_lines Returns properly formatted maps", function ()
     local lines = require("dart-boiler")._boil_process_lines(_boil_sample_input)
@@ -124,6 +126,14 @@ describe("dart-boiler", function ()
     local props = {}
     require("dart-boiler")._boil_props(_boil_sample_processed, props)
     local result = _boil_deepcompare(props, _boil_sample_props, true)
+    assert.is.True(result)
+  end)
+
+  it("_boil_tostring Returns properly formatted toString function using parsed fields", function ()
+    local tostring = {}
+    require("dart-boiler")._boil_tostring(_boil_sample_processed, tostring)
+    P(tostring)
+    local result = _boil_deepcompare(tostring, _boil_sample_tostring, true)
     assert.is.True(result)
   end)
 end)
