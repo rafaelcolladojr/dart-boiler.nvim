@@ -194,7 +194,7 @@ end
 M.boil = function (copyWith, props, toString)
   M._boil_setting_copywith = copyWith or true
   M._boil_setting_props = props or false
-  M._boil_setting_tostring = props or true
+  M._boil_setting_tostring = toString or true
 
   -- Check for Dart filetype
   local bufnr = vim.api.nvim_get_current_buf()
