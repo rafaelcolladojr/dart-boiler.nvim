@@ -20,53 +20,66 @@ end
 
 _boil_sample_input = {
   "class ClassName {",
+  "\tDateTime! wild;",
+  "String!! escape;",
+  "String no;",
+  "bool try_this;",
+  "bool maybe = true;",
   "String? name,",
   "  String? yes,",
-  "String no",
-  "\tDateTime! wild;",
-  "bool try_this;",
   "}",
 }
 
 _boil_sample_processed = {
   class = "ClassName",
   inherited = {
-    {type = "DateTime", name = "wild"},
+    {type = "DateTime", name = "wild", default = ""},
+  },
+  rinherited = {
+    {type = "String", name = "escape", default = ""},
   },
   required = {
-    {type = "String", name = "no"},
-    {type = "bool", name = "try_this"},
+    {type = "String", name = "no", default = ""},
+    {type = "bool", name = "try_this", default = ""},
+    {type = "bool", name = "maybe", default = " = true"},
   },
   optional = {
-    {type = "String", name = "name"},
-    {type = "String", name = "yes"},
+    {type = "String", name = "name", default = ""},
+    {type = "String", name = "yes", default = ""},
   },
 }
 
 _boil_sample_constructor = {
   "const ClassName({",
   "DateTime? wild,",
+  "required String escape,",
   "required this.no,",
   "required this.try_this,",
+  "this.maybe = true,",
   "this.name,",
   "this.yes,",
   "}): super(",
   "wild: wild,",
+  "escape: escape,",
   ");",
 }
 
 _boil_sample_copywith = {
   "ClassName copyWith({",
   "DateTime? wild,",
+  "String? escape,",
   "String? no,",
   "bool? try_this,",
+  "bool? maybe,",
   "String? name,",
   "String? yes,",
   "}) =>",
   "ClassName(",
   "wild: wild ?? this.wild,",
+  "escape: escape ?? this.escape,",
   "no: no ?? this.no,",
   "try_this: try_this ?? this.try_this,",
+  "maybe: maybe ?? this.maybe,",
   "name: name ?? this.name,",
   "yes: yes ?? this.yes,",
   ");",
@@ -76,18 +89,16 @@ _boil_sample_props = {
   "@override",
   "List<Object?> get props => [",
   "wild,",
+  "escape,",
   "no,",
   "try_this,",
+  "maybe,",
   "name,",
   "yes,",
   "];",
 }
 
 describe("dart-boiler", function ()
-  it("Can be required", function ()
-    require("dart-boiler")
-  end)
-
   it("_boil_process_lines Returns properly formatted maps", function ()
     local lines = require("dart-boiler")._boil_process_lines(_boil_sample_input)
     local result = _boil_deepcompare(lines, _boil_sample_processed, true)
@@ -97,6 +108,7 @@ describe("dart-boiler", function ()
   it("_boil_constructor Returns properly formatted constructor using parsed fields", function ()
     local constructor = {}
     require("dart-boiler")._boil_constructor(_boil_sample_processed, constructor)
+    P(constructor)
     local result = _boil_deepcompare(constructor, _boil_sample_constructor, true)
     assert.is.True(result)
   end)
