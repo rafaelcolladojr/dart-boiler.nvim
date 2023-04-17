@@ -51,11 +51,13 @@ M._boil_process_lines = function (buf_lines)
 
   if constructor_b ~= "" then
     constructor_b = "}): super(\n" ..  constructor_b
+  else
+    constructor_b = constructor_b .. "}"
   end
    constructor_b = constructor_b .. ");\n"
 
   copyWith_b = copyWith_b .. ");\n"
-  props = props .. "];\n"
+  props = props .. "\n];\n"
   toString = toString .. ")\";\n";
 
   if (M._boil_setting_copywith ~= true) then
@@ -133,7 +135,7 @@ end
 -- PROPS GETTER (Equatable)
 M._boil_props = function (field)
   if (field.name) then
-    return field.name .. ","
+    return field.name .. ",\n"
   else return ""
   end
 end
