@@ -3,191 +3,148 @@ local M = {}
 -- PROCESS HIGHLIGHTED LINES
 M._boil_process_lines = function (buf_lines)
   local regex_class = "^%s*class%s*(%w*).*$"
-  local regex_fields = "^%s*([A-Za-z<>]+)([!%?]*)%s+([a-zA-Z_%-]+)(%s*=?%s*[^,;:]*)[,;:]*%s*$"
+  local regex_fields = "^%s*([A-Za-z<,> ]+)([!%?]*)%s+([a-zA-Z_%-]+)(%s*=?%s*[^,;:]*)[,;:]*%s*$"
 
-  local fields = {class=nil, inherited={}, rinherited={}, required={}, optional={}}
+  local constructor_a = ""
+  local constructor_b = ""
+  local fields = ""
+  local copyWith_a = ""
+  local copyWith_b = ""
+  local props = "@override\nList<Object?> get props => [\n"
+  local toString = ""
+
   for index, value in ipairs(buf_lines) do
     if index == 1 then
       local _, _ , class = string.find(value, regex_class)
-      fields.class = class
+      if class == nil then
+        return
+      end
+
+      -- Begining. Dealing with class name
+
+      constructor_a = "const " .. class .. "({\n"
+      copyWith_a = class .. " copyWith({\n"
+      copyWith_b = "}) => " .. class .. "(\n"
+      toString = "String toString() => \"" .. class .. "("
       goto continue
     end
 
     local _, _, type, scope, name, default = string.find(value, regex_fields)
-    local field = {type = type, name = name, default = default}
-    if scope == "!" then
-      table.insert(fields.inherited, field)
-    elseif scope == "!!"  then
-      table.insert(fields.rinherited, field)
-    elseif scope == "" then
-      table.insert(fields.required, field)
-    elseif scope == "?" then
-      table.insert(fields.optional, field)
-    end
-      ::continue::
+
+    local field = {type = type, scope = scope, name = name, default = default}
+
+    -- Middle. Field inserting
+
+    constructor_a = constructor_a .. M._boil_constructor_a(field)
+    constructor_b = constructor_b .. M._boil_constructor_b(field)
+    fields = fields .. M._boil_fields(field)
+    copyWith_a = copyWith_a .. M._boil_copywith_a(field)
+    copyWith_b = copyWith_b .. M._boil_copyWith_b(field)
+    props = props .. M._boil_props(field)
+    toString = toString .. M._boil_toString(field)
+
+
+    ::continue::
   end
-  return fields
+
+  -- End. Closing functions and bodies
+
+  if constructor_b ~= "" then
+    constructor_b = "}): super(\n" ..  constructor_b
+  end
+   constructor_b = constructor_b .. ");\n"
+
+  copyWith_b = copyWith_b .. ");\n"
+  props = props .. "];\n"
+  toString = toString .. ")\";\n";
+
+  if (M._boil_setting_copywith ~= true) then
+    fields = ""
+  elseif M._boil_setting_props ~= true then
+    props = ""
+  elseif M._boil_setting_tostring ~= true then
+    toString = ""
+  end
+
+  local output = constructor_a .. constructor_b .. fields .. copyWith_a .. copyWith_b .. props .. toString
+  return output .. "}\n"
 end
 
 -- BOILERPLATE CONSTRUCTOR
-M._boil_constructor = function (fields, replacement)
-    table.insert(replacement, "const " .. fields.class .. "({")
-  for _, field in ipairs(fields.inherited) do
-      local comp = field.type .. "? " .. field.name .. ","
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.rinherited) do
-    local comp = "required " .. field.type .. " " .. field.name .. ","
-    if field.default ~= ""  then
-    comp = field.type .. " " .. field.name .. field.default .. ","
-    end
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.required) do
-    local comp = "required this." .. field.name .. ","
+M._boil_constructor_a = function (field)
+  local comp = ""
+  if field.scope == "!" then
+    comp = field.type .. "? " .. field.name .. ",\n"
+  elseif field.scope == "!!" then
+    comp = "required " .. field.type .. " " .. field.name .. ",\n"
     if field.default ~= "" then
-    comp = "this." .. field.name .. field.default .. ","
+      comp = field.type .. field.name .. field.default .. ",\n"
     end
-    table.insert(replacement, comp)
+  elseif field.scope == "" then
+    comp = "required this." .. field.name .. ",\n"
+    if field.default ~= "" then
+      comp = "this." .. field.name .. field.default .. ",\n"
+    end
   end
-  for _, field in ipairs(fields.optional) do
-    local comp = "this." .. field.name .. ","
-    table.insert(replacement, comp)
+  if field.scope == "?" then
+    comp = "this." .. field.name .. ",\n"
   end
-  if #fields.inherited then
-    table.insert(replacement, "}): super(")
-    for _, field in ipairs(fields.inherited) do
-      local comp = field.name .. ": " .. field.name .. ","
-      table.insert(replacement, comp)
-    end
-    for _, field in ipairs(fields.rinherited) do
-      local comp = field.name .. ": " .. field.name .. ","
-      table.insert(replacement, comp)
-    end
-    table.insert(replacement, ");")
+  return comp
+end
+
+M._boil_constructor_b = function (field)
+  if field.scope == "!" or field.scope == "!!" then
+    local comp = field.name .. ": " .. field.name .. ",\n"
+    return comp
   else
-    table.insert(replacement, "});")
+    return ""
   end
 end
 
 -- ALL FIELDS (AFTER CONSTRUCTOR)
-M._boil_fields = function (fields, replacement)
-  for _, field in ipairs(fields.required) do
-    local comp = "final ".. field.type .. " " .. field.name .. ";"
-    table.insert(replacement, comp)
+M._boil_fields = function (field)
+  local comp = ""
+  if field.scope == "" then
+    comp = "final ".. field.type .. " " .. field.name .. ";\n"
   end
-  for _, field in ipairs(fields.optional) do
-    local comp = "final ".. field.type .. "? " .. field.name .. ";"
-    table.insert(replacement, comp)
+  if field.scope == "?" then
+    comp = "final ".. field.type .. "? " .. field.name .. ";\n"
   end
+  return comp
 end
 
 -- COPYWITH FUNCTION
-M._boil_copywith = function (fields, replacement)
-  table.insert(replacement, fields.class .. " copyWith({")
-  for _, field in ipairs(fields.inherited) do
-    local comp = field.type .. "? " .. field.name .. ","
-    table.insert(replacement, comp)
+M._boil_copywith_a = function (field)
+  if (field.type and field.name) then
+    return field.type .. "? " .. field.name .. ",\n"
+  else
+    return ""
   end
-  for _, field in ipairs(fields.rinherited) do
-    local comp = field.type .. "? " .. field.name .. ","
-    table.insert(replacement, comp)
+end
+
+M._boil_copyWith_b = function (field)
+  if (field.name) then
+    return field.name .. ": " .. field.name .. " ?? this." .. field.name .. ",\n"
+  else
+    return ""
   end
-  for _, field in ipairs(fields.required) do
-    local comp = field.type .. "? " .. field.name .. ","
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.optional) do
-    local comp = field.type .. "? " .. field.name .. ","
-    table.insert(replacement, comp)
-  end
-  table.insert(replacement, "}) =>")
-  table.insert(replacement, fields.class .. "(")
-  for _, field in ipairs(fields.inherited) do
-    local comp = field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.rinherited) do
-    local comp = field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.required) do
-    local comp = field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.optional) do
-    local comp = field.name .. ": " .. field.name .. " ?? this." .. field.name .. ","
-    table.insert(replacement, comp)
-  end
-  table.insert(replacement, ");")
 end
 
 -- PROPS GETTER (Equatable)
-M._boil_props = function (fields, replacement)
-  table.insert(replacement, "@override")
-  table.insert(replacement, "List<Object?> get props => [")
-  for _, field in ipairs(fields.inherited) do
-    local comp = field.name .. ","
-    table.insert(replacement, comp)
+M._boil_props = function (field)
+  if (field.name) then
+    return field.name .. ","
+  else return ""
   end
-  for _, field in ipairs(fields.rinherited) do
-    local comp = field.name .. ","
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.required) do
-    local comp = field.name .. ","
-    table.insert(replacement, comp)
-  end
-  for _, field in ipairs(fields.optional) do
-    local comp = field.name .. ","
-    table.insert(replacement, comp)
-  end
-  table.insert(replacement, "];")
 end
 
 -- TOSTRING
-M._boil_tostring = function (fields, replacement)
-  local comp = "String toString() => \"" .. fields.class .. "("
-  for _, field in ipairs(fields.inherited) do
-    comp = comp .. field.name .. ": $" .. field.name .. ", "
+M._boil_toString = function (field)
+  if (field.name) then
+    return field.name .. ": $" .. field.name .. ", "
+  else
+    return ""
   end
-  for _, field in ipairs(fields.rinherited) do
-    comp = comp .. field.name .. ": $" .. field.name .. ", "
-  end
-  for _, field in ipairs(fields.required) do
-    comp = comp .. field.name .. ": $" .. field.name .. ", "
-  end
-  for _, field in ipairs(fields.optional) do
-    comp = comp .. field.name .. ": $" .. field.name .. ", "
-  end
-    comp = comp .. ")\";"
-  table.insert(replacement, comp)
-end
-
--- ALL BOILERPLATE CODE
-M._boil_boilerplate = function(fields, replacement)
-  M._boil_constructor(fields, replacement)
-
-  table.insert(replacement, "")
-  M._boil_fields(fields, replacement)
-
-
-  if M._boil_setting_copywith then
-    table.insert(replacement, "")
-    M._boil_copywith(fields, replacement)
-  end
-
-  if M._boil_setting_props then
-    table.insert(replacement, "")
-    M._boil_props(fields, replacement)
-  end
-
-  if M._boil_setting_tostring then
-    table.insert(replacement, "")
-    M._boil_tostring(fields, replacement)
-  end
-
-    table.insert(replacement, "}")
 end
 
 -- PUBLIC BOILERPLATE GENERATION COMMAND
@@ -211,9 +168,10 @@ M.boil = function (copyWith, props, toString)
   local buf_lines = vim.api.nvim_buf_get_lines(bufnr, vstart, vend, false)
   local fields = M._boil_process_lines(buf_lines)
 
-  -- Generate replacement code
   local replacement = {}
-  M._boil_boilerplate(fields, replacement)
+  for line in string.gmatch(fields, "[^\n]+") do
+    table.insert(replacement, line)
+  end
 
   -- Overwrite selected text with replacement
   vim.api.nvim_buf_set_lines(bufnr, vstart + 1, vend, false, replacement)
