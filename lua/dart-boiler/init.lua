@@ -3,7 +3,7 @@ local M = {}
 -- PROCESS HIGHLIGHTED LINES
 M._boil_process_lines = function (buf_lines)
   local regex_class = "^%s*class%s*(%w*).*$"
-  local regex_fields = "^%s*([A-Za-z<,> ]+)([!%?]*)%s+([a-zA-Z_%-]+)(%s*=?%s*[^,;:]*)[,;:]*%s*$"
+  local regex_fields = "^%s*([A-Za-z0-9<,> ]+)([!%?]*)%s+([a-zA-Z0-9_%-]+)(%s*=?%s*[^,;:]*)[,;:]*%s*$"
 
   local constructor_a = ""
   local constructor_b = ""
