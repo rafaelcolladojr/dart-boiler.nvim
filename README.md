@@ -90,7 +90,7 @@ The symbol following a datatype indicates the nature and scope of that field:
 Select the fields you've created with a visual block selection, and execute the following command:
 
 ```lua
-:lua require('dart-boiler').boil(true, true) -- args: (copyWith, props, toString)
+:lua require('dart-boiler').boil(true, true, false) -- args: (copyWith, props, toString)
 ```
 
 ## Todo
