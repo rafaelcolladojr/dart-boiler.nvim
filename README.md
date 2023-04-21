@@ -4,8 +4,8 @@ dart-boiler.nvim makes Dart class boilerplate a breeze with instant, in-line cod
 
 <div align="center">
     
-<img width="600" src="https://user-images.githubusercontent.com/7101404/231954108-f0a763d9-b51a-45b0-979b-d44ec29e9cbd.gif">
-    
+    <img width="600" src="https://user-images.githubusercontent.com/7101404/233726847-80ea9498-13f5-4217-8533-e638cf7a1cc8.gif">
+
 </div>
     
 <BR>
